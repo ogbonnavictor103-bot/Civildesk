@@ -1,12 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CivilDesk</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/App.jsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CivilDesk - Office Assistant</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:linear-gradient(135deg,#0a1628 0%,#0d2137 50%,#0a1628 100%);font-family:Georgia,serif;color:#e8d5a3}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const tools = [
+  {id:"leave",icon:"🌴",title:"Leave Application",desc:"Generate a professional leave request letter"},
+  {id:"minutes",icon:"📋",title:"Meeting Minutes",desc:"Turn rough notes into official minutes"},
+  {id:"letter",icon:"✉️",title:"Official Letter",desc:"Write any formal government letter"},
+  {id:"report",icon:"📊",title:"Daily Work Report",desc:"Format your daily activity report"},
+  {id:"salary",icon:"💰",title:"Salary Calculator",desc:"Calculate your exact take-home pay"},
+  {id:"complaint",icon:"⚖️",title:"Complaint Letter",desc:"Write a firm professional complaint"},
+  {id:"promotion",icon:"🏆",title:"Promotion Letter",desc:"Request a promotion with confidence"},
+  {id:"memo",icon:"📝",title:"Office Memo",desc:"Generate a properly formatted memo"},
+];
+
+const toolForms = {
+  leave:{title:"Leave Application Generator",fields:[
+    {key:"name",label:"Your Full Name",placeholder:"e.g. Mr. Victor Eze"},
+    {key:"position",label:"Your Position / Job Title",placeholder:"e.g. Senior Accountant"},
+    {key:"department",label:"Your Department",placeholder:"e.g. Finance Department"},
+    {key:"supervisor",label:"Supervisor's Name & Title",placeholder:"e.g. Mrs. Amaka Obi, Head of Finance"},
+    {key:"leaveType",label:"Type of Leave",placeholder:"e.g. Annual Leave, Sick Leave"},
+    {key:"startDate",label:"Start Date",placeholder:"e.g. 10th June 2026"},
+    {key:"endDate",label:"End Date",placeholder:"e.g. 20th June 2026"},
+    {key:"reason",label:"Reason for Leave",ta:true,placeholder:"e.g. Family vacation and personal rest"},
+  ],prompt:(d)=>`Write a formal leave application letter for a Nigerian civil servant. Name: ${d.name}, Position: ${d.position}, Department: ${d.department}, Supervisor: ${d.supervisor}, Leave Type: ${d.leaveType}, Start: ${d.startDate}, End: ${d.endDate}, Reason: ${d.reason}. Write a complete professional government-standard letter with date, subject line, salutation, body and sign-off.`},
+  minutes:{title:"Meeting Minutes Writer",fields:[
+    {key:"meetingTitle",label:"Meeting Title",placeholder:"e.g. Monthly Departmental Review"},
+    {key:"date",label:"Date of Meeting",placeholder:"e.g. 28th May 2026"},
+    {key:"venue",label:"Venue",placeholder:"e.g. Conference Room B"},
+    {key:"chairman",label:"Chairman",placeholder:"e.g. Dr. Emeka Nwosu"},
+    {key:"attendees",label:"Attendees",placeholder:"e.g. Mrs. Bello, Mr. Ade..."},
+    {key:"notes",label:"Your Rough Notes",ta:true,placeholder:"Type everything discussed, decided, or assigned..."},
+  ],prompt:(d)=>`Convert these rough notes into official meeting minutes for a Nigerian government office. Meeting: ${d.meetingTitle}, Date: ${d.date}, Venue: ${d.venue}, Chairman: ${d.chairman}, Attendees: ${d.attendees}. Notes: ${d.notes}. Format as proper official minutes with heading, attendance, agenda, discussions, decisions, action points and closing.`},
+  letter:{title:"Official Letter Writer",fields:[
+    {key:"senderName",label:"Your Name & Title",placeholder:"e.g. Mr. Chukwudi Okafor"},
+    {key:"senderPosition",label:"Your Position",placeholder:"e.g. Director of Operations"},
+    {key:"organization",label:"Your Organization",placeholder:"e.g. Federal Ministry of Works"},
+    {key:"recipientName",label:"Recipient Name & Title",placeholder:"e.g. The Permanent Secretary"},
+    {key:"recipientOrg",label:"Recipient Organization",placeholder:"e.g. Ministry of Finance"},
+    {key:"subject",label:"Subject of Letter",placeholder:"e.g. Request for Budget Approval"},
+    {key:"purpose",label:"What do you want to say?",ta:true,placeholder:"Describe in simple words..."},
+  ],prompt:(d)=>`Write a formal official letter. Sender: ${d.senderName}, ${d.senderPosition}, ${d.organization}. Recipient: ${d.recipientName}, ${d.recipientOrg}. Subject: ${d.subject}. Purpose: ${d.purpose}. Write a complete properly formatted Nigerian government letter with reference number, date, subject line, salutation, body and formal closing.`},
+  report:{title:"Daily Work Report Generator",fields:[
+    {key:"name",label:"Your Full Name",placeholder:"e.g. Miss Ngozi Adeyemi"},
+    {key:"position",label:"Your Position",placeholder:"e.g. Administrative Officer"},
+    {key:"department",label:"Department",placeholder:"e.g. Human Resources"},
+    {key:"date",label:"Report Date",placeholder:"e.g. 30th May 2026"},
+    {key:"activities",label:"What did you do today?",ta:true,placeholder:"e.g. Attended budget meeting, processed 5 files..."},
+    {key:"challenges",label:"Any challenges? (optional)",placeholder:"e.g. Network issues"},
+    {key:"tomorrow",label:"Plans for tomorrow? (optional)",placeholder:"e.g. Complete appraisal reports"},
+  ],prompt:(d)=>`Write a formal daily work report for a Nigerian civil servant. Name: ${d.name}, Position: ${d.position}, Department: ${d.department}, Date: ${d.date}. Activities: ${d.activities}. Challenges: ${d.challenges||"None"}. Tomorrow: ${d.tomorrow||"Not specified"}. Format as a professional daily report with heading, activities accomplished, challenges and plans sections.`},
+  salary:{title:"Salary Deduction Calculator",fields:[
+    {key:"grossSalary",label:"Gross Monthly Salary (₦)",placeholder:"e.g. 150000"},
+    {key:"pension",label:"Pension % (usually 8%)",placeholder:"e.g. 8"},
+    {key:"tax",label:"PAYE Tax %",placeholder:"e.g. 7"},
+    {key:"nhf",label:"NHF % (usually 2.5%)",placeholder:"e.g. 2.5"},
+    {key:"otherDeductions",label:"Other deductions ₦ (optional)",placeholder:"e.g. 5000 for cooperative"},
+  ],prompt:(d)=>`Calculate salary breakdown for a Nigerian civil servant. Gross: ₦${d.grossSalary}, Pension: ${d.pension}%, PAYE: ${d.tax}%, NHF: ${d.nhf}%, Other: ${d.otherDeductions||"None"}. Show detailed breakdown with each deduction amount, total deductions, and net take-home pay. Show all calculations clearly.`},
+  complaint:{title:"Complaint Letter Writer",fields:[
+    {key:"name",label:"Your Name & Position",placeholder:"e.g. Mr. Taiwo Adebayo, Senior Clerk"},
+    {key:"department",label:"Your Department",placeholder:"e.g. Records Department"},
+    {key:"recipient",label:"Who are you complaining to?",placeholder:"e.g. The Director of Administration"},
+    {key:"issue",label:"What is the problem?",ta:true,placeholder:"Describe clearly..."},
+    {key:"impact",label:"How has it affected you?",placeholder:"e.g. Caused financial hardship..."},
+    {key:"resolution",label:"What do you want them to do?",placeholder:"e.g. Process my promotion..."},
+  ],prompt:(d)=>`Write a formal workplace complaint letter for a Nigerian civil servant. Complainant: ${d.name}, Department: ${d.department}. Recipient: ${d.recipient}. Issue: ${d.issue}. Impact: ${d.impact}. Resolution: ${d.resolution}. Write a firm, professional and respectful complaint letter with proper subject line and formal closing.`},
+  promotion:{title:"Promotion Application Letter",fields:[
+    {key:"name",label:"Your Full Name",placeholder:"e.g. Mrs. Halima Suleiman"},
+    {key:"currentPosition",label:"Current Position & Grade",placeholder:"e.g. Admin Officer, GL 08"},
+    {key:"department",label:"Department & Organization",placeholder:"e.g. Procurement, Ministry of Health"},
+    {key:"yearsInPost",label:"Years in Current Position",placeholder:"e.g. 4 years"},
+    {key:"achievements",label:"Your Key Achievements",ta:true,placeholder:"e.g. Led digitization of 2000 files..."},
+    {key:"qualifications",label:"Relevant Qualifications",placeholder:"e.g. BSc Public Administration..."},
+    {key:"targetPosition",label:"Position Applying For",placeholder:"e.g. Principal Admin Officer GL 10"},
+  ],prompt:(d)=>`Write a compelling promotion application letter for a Nigerian civil servant. Name: ${d.name}, Current: ${d.currentPosition}, Department: ${d.department}, Years: ${d.yearsInPost}. Achievements: ${d.achievements}. Qualifications: ${d.qualifications}. Target: ${d.targetPosition}. Write a persuasive professional letter highlighting achievements and readiness.`},
+  memo:{title:"Office Memo Generator",fields:[
+    {key:"from",label:"FROM",placeholder:"e.g. Head of Department, Accounts Unit"},
+    {key:"to",label:"TO",placeholder:"e.g. All Staff, Finance Department"},
+    {key:"subject",label:"Subject",placeholder:"e.g. New Attendance Policy"},
+    {key:"date",label:"Date",placeholder:"e.g. 30th May 2026"},
+    {key:"message",label:"What to communicate?",ta:true,placeholder:"Describe in simple words..."},
+  ],prompt:(d)=>`Write a formal office memo for a Nigerian government office. FROM: ${d.from}, TO: ${d.to}, SUBJECT: ${d.subject}, DATE: ${d.date}. Message: ${d.message}. Write a properly formatted memorandum with correct heading format, clear professional body and appropriate closing.`},
+};
+
+async function callClaude(prompt){
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+  const d=await r.json();
+  return d.content?.[0]?.text||"Unable to generate. Please try again.";
+}
+
+function App(){
+  const [activeTool,setActiveTool]=React.useState(null);
+  const [formData,setFormData]=React.useState({});
+  const [result,setResult]=React.useState("");
+  const [loading,setLoading]=React.useState(false);
+  const [copied,setCopied]=React.useState(false);
+
+  const handleToolSelect=(id)=>{setActiveTool(id);setFormData({});setResult("");setCopied(false);};
+  const handleChange=(k,v)=>setFormData(p=>({...p,[k]:v}));
+  const handleGenerate=async()=>{
+    setLoading(true);setResult("");
+    try{const t=await callClaude(toolForms[activeTool].prompt(formData));setResult(t);}
+    catch{setResult("Something went wrong. Please try again.");}
+    setLoading(false);
+  };
+  const handleCopy=()=>{navigator.clipboard.writeText(result);setCopied(true);setTimeout(()=>setCopied(false),2000);};
+  const currentTool=activeTool?toolForms[activeTool]:null;
+
+  const s={
+    header:{background:"linear-gradient(90deg,#1a3a2a,#0d2137,#1a3a2a)",borderBottom:"2px solid #c9973a",padding:"18px 24px",display:"flex",alignItems:"center",justifyContent:"space-between"},
+    logo:{fontSize:22,fontWeight:"bold",color:"#c9973a",letterSpacing:2},
+    sub:{fontSize:11,color:"#8aab8a",letterSpacing:3,textTransform:"uppercase"},
+    wrap:{maxWidth:780,margin:"0 auto",padding:"24px 16px"},
+    grid:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14},
+    card:{background:"linear-gradient(135deg,#0d2137,#1a3a2a)",border:"1px solid #2a4a3a",borderRadius:12,padding:"18px 16px",cursor:"pointer",textAlign:"left",color:"#e8d5a3",fontFamily:"Georgia,serif"},
+    divider:{height:2,background:"linear-gradient(90deg,transparent,#c9973a,transparent)",marginBottom:20},
+    input:{width:"100%",background:"#0a1628",border:"1px solid #2a4a3a",borderRadius:8,padding:"10px 12px",color:"#e8d5a3",fontSize:13,fontFamily:"Georgia,serif",outline:"none"},
+    btn:{width:"100%",padding:14,border:"none",borderRadius:10,fontSize:15,fontWeight:"bold",cursor:"pointer",fontFamily:"Georgia,serif",letterSpacing:1,marginTop:8},
+    result:{background:"#f9f6ef",border:"1px solid #c9973a",borderRadius:10,padding:20,color:"#1a1a1a",fontSize:13,lineHeight:1.8,fontFamily:"Georgia,serif",whiteSpace:"pre-wrap",marginBottom:16},
+  };
+
+  return(
+    <div style={{minHeight:"100vh",background:"linear-gradient(135deg,#0a1628,#0d2137,#0a1628)"}}>
+      <div style={s.header}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          {activeTool&&<button onClick={()=>setActiveTool(null)} style={{background:"none",border:"1px solid #c9973a",color:"#c9973a",borderRadius:6,padding:"4px 12px",cursor:"pointer",fontSize:13,fontFamily:"Georgia,serif"}}>← Back</button>}
+          <div><div style={s.logo}>⚖️ CIVILDESK</div><div style={s.sub}>Office Assistant for Civil Servants</div></div>
+        </div>
+        <div style={{fontSize:11,color:"#8aab8a",border:"1px solid #2a4a3a",borderRadius:6,padding:"6px 12px"}}>🇳🇬 Nigeria & Africa</div>
+      </div>
+      <div style={s.wrap}>
+        {!activeTool&&!result&&(
+          <>
+            <div style={{textAlign:"center",marginBottom:32}}>
+              <div style={{fontSize:15,color:"#8aab8a",border:"1px solid #2a4a3a",display:"inline-block",padding:"6px 20px",borderRadius:20,marginBottom:12}}>Powered by Artificial Intelligence</div>
+              <h2 style={{fontSize:20,color:"#e8d5a3",margin:"0 0 6px",fontWeight:"normal"}}>Select a tool to get started</h2>
+              <p style={{fontSize:13,color:"#6a8a7a"}}>All tools generate professional government-standard documents instantly</p>
+            </div>
+            <div style={s.grid}>
+              {tools.map(t=>(
+                <button key={t.id} onClick={()=>handleToolSelect(t.id)} style={s.card}>
+                  <div style={{fontSize:28,marginBottom:8}}>{t.icon}</div>
+                  <div style={{fontSize:14,fontWeight:"bold",color:"#c9973a",marginBottom:4}}>{t.title}</div>
+                  <div style={{fontSize:11,color:"#6a8a7a",lineHeight:1.4}}>{t.desc}</div>
+                </button>
+              ))}
+            </div>
+            <div style={{marginTop:28,textAlign:"center",padding:14,border:"1px solid #2a4a3a",borderRadius:10}}>
+              <div style={{fontSize:12,color:"#6a8a7a"}}>🔒 Your information is never stored. All documents are generated privately.</div>
+            </div>
+          </>
+        )}
+        {activeTool&&!result&&(
+          <div>
+            <div style={{fontSize:18,color:"#c9973a",fontWeight:"bold",marginBottom:6,textAlign:"center"}}>{tools.find(t=>t.id===activeTool)?.icon} {currentTool.title}</div>
+            <div style={s.divider}/>
+            {currentTool.fields.map(f=>(
+              <div key={f.key} style={{marginBottom:16}}>
+                <label style={{display:"block",fontSize:12,color:"#8aab8a",marginBottom:5,letterSpacing:1}}>{f.label.toUpperCase()}</label>
+                {f.ta
+                  ?<textarea placeholder={f.placeholder} value={formData[f.key]||""} onChange={e=>handleChange(f.key,e.target.value)} rows={4} style={{...s.input,resize:"vertical"}}/>
+                  :<input type="text" placeholder={f.placeholder} value={formData[f.key]||""} onChange={e=>handleChange(f.key,e.target.value)} style={s.input}/>
+                }
+              </div>
+            ))}
+            <button onClick={handleGenerate} disabled={loading} style={{...s.btn,background:loading?"#2a4a3a":"linear-gradient(90deg,#c9973a,#e8b84b)",color:loading?"#6a8a7a":"#0a1628",cursor:loading?"not-allowed":"pointer"}}>
+              {loading?"✨ Generating your document...":"⚡ Generate Document"}
+            </button>
+          </div>
+        )}
+        {result&&(
+          <div>
+            <div style={{fontSize:18,color:"#c9973a",fontWeight:"bold",marginBottom:6,textAlign:"center"}}>✅ Your Document is Ready</div>
+            <div style={s.divider}/>
+            <div style={s.result}>{result}</div>
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={handleCopy} style={{...s.btn,flex:1,background:copied?"#1a5a2a":"linear-gradient(90deg,#c9973a,#e8b84b)",color:copied?"#8adb8a":"#0a1628",marginTop:0}}>
+                {copied?"✅ Copied!":"📋 Copy Document"}
+              </button>
+              <button onClick={()=>{setResult("");setFormData({});}} style={{...s.btn,flex:1,background:"none",border:"1px solid #c9973a",color:"#c9973a",marginTop:0}}>
+                🔄 Generate Again
+              </button>
+            </div>
+            <button onClick={()=>{setActiveTool(null);setResult("");setFormData({});}} style={{...s.btn,background:"none",border:"1px solid #2a4a3a",color:"#6a8a7a",fontSize:13}}>
+              ← Back to All Tools
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.render(<App/>,document.getElementById("root"));
+</script>
+</body>
 </html>
